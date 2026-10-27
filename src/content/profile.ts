@@ -46,7 +46,7 @@ export const profile = {
   name: "Swayam Sagar",
   role: "Computing Science, University of Alberta",
   headline:
-    "I build software end to end: a C++ game engine from scratch, the federation layer of a distributed social network, and the deployment pipeline for a client's language-learning platform.",
+    "I build software end to end: a 2D game engine in C++, the federation layer of a distributed social network, and the deployment pipeline for a client's language-learning platform.",
   location: "Edmonton, Alberta",
   seeking: "Software engineering and AI/ML internships, Summer 2027",
   email: "swayam2@ualberta.ca",
@@ -79,7 +79,7 @@ export const profile = {
       context: "Client project for ALTLab, CMPUT 401, team of 7",
       period: "Sep 2026 – present",
       role: "Deployment and CI/CD owner, Scrum Master for sprints 2 and 3",
-      evidence: "88 of the team's 305 commits, the most of anyone (as of October 2026)",
+      evidence: "66 of the team's 238 commits, the most of anyone (as of October 2026, excluding merges)",
       problem:
         "ALTLab's Plains Cree texts lived in Korp, a corpus-search tool built for linguists. Learners and speakers had no simple way to just read a story, tap a word they didn't know, and see what it means.",
       did: [
@@ -110,7 +110,7 @@ export const profile = {
       context: "Federated social network, CMPUT 404, team of 5",
       period: "Jan – Apr 2026",
       role: "Worked mainly on federation between servers",
-      evidence: "104 commits, second-most on the team",
+      evidence: "91 commits, second-most on the team, and 130+ automated tests",
       problem:
         "Each team member ran their own server, and servers built by other teams had to share authors, posts, follows and likes with ours, with no central database.",
       did: [
