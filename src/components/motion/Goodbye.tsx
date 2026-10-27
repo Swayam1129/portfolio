@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Starfield } from "./Starfield";
 
-/** The finale: a gold sun rises behind "Thanks for scrolling." as the letters climb in one by one. */
+/** The finale: the starfield jumps to hyperspace and an aurora glow rises as "Thanks for scrolling." climbs in letter by letter. */
 export function Goodbye({ email }: { email: string }) {
   const ref = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(false);
@@ -27,6 +28,7 @@ export function Goodbye({ email }: { email: string }) {
   let n = 0;
   return (
     <section ref={ref} className={`bye${shown ? " is-in" : ""}`} aria-labelledby="bye-h">
+      <Starfield warp={shown} density={0.9} className="bye-stars" />
       <div className="bye-sun" aria-hidden="true" />
       <div className="bye-inner wrap">
         <h2 id="bye-h" className="bye-title">

@@ -84,6 +84,48 @@ export function EventEaseFlow() {
   );
 }
 
+export function AccessUFlow() {
+  return (
+    <figure className="diagram" aria-labelledby="au-diagram-cap">
+      <div className="dg-lanes">
+        <div className="dg-lane">
+          <p className="dg-lane-title">Indoors</p>
+          <div className="dg-col">
+            <div className="dg-box dg-quiet">Scan a QR checkpoint</div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box dg-accent">
+              <strong>Building graph</strong>
+              <span>shortest path from this node</span>
+            </div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box">
+              <strong>Spoken directions</strong>
+              <span>reroutes on a wrong-path scan</span>
+            </div>
+          </div>
+        </div>
+        <div className="dg-lane">
+          <p className="dg-lane-title">Outdoors</p>
+          <div className="dg-col">
+            <div className="dg-box dg-quiet">Say a destination</div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box dg-accent">
+              <strong>Campus routing</strong>
+              <span>Google Directions, geocoding, places</span>
+            </div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box">
+              <strong>Transit</strong>
+              <span>ETS schedule, live arrivals, stop alerts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption id="au-diagram-cap">The navigation I built: QR checkpoints inside, maps and buses outside</figcaption>
+    </figure>
+  );
+}
+
 export function Federation() {
   return (
     <figure className="diagram" aria-labelledby="fed-diagram-cap">

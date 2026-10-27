@@ -5,6 +5,8 @@ import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { profile } from "@/content/profile";
 import { RevealInit } from "@/components/motion/RevealInit";
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { Cursor } from "@/components/motion/Cursor";
 
 export const metadata: Metadata = {
   metadataBase: new URL(profile.site),
@@ -26,6 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="skip">Skip to content</a>
         {children}
         <RevealInit />
+        <SmoothScroll />
+        <Cursor />
       </body>
     </html>
   );

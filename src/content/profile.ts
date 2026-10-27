@@ -1,7 +1,8 @@
 // Everything about you lives here. Edit this file to change the site.
 // The chat on the site answers ONLY from this file, so keep it accurate:
 // anything written here, the chat will repeat to recruiters.
-// Commit counts exclude merge commits and were checked against each repository in October 2026.
+// Commit counts exclude merge commits. "Lines" are lines still in each project's final code
+// (git blame, whitespace ignored), checked against the repositories in October 2026.
 
 export type Project = {
   slug: string;
@@ -32,22 +33,27 @@ export type LedgerRow = {
   team: number;
   mine: number;
   total: number;
+  linesMine: number;
+  linesTotal: number;
   rank?: string;
   period: string;
 };
+
+export type Shot = { src: string; alt: string; caption: string; frame: "browser" | "phone" | "plain" };
 
 export type Testimonial = { quote: string; name: string; role: string };
 
 export type CaseStudy = {
   slug: string;
   title: string;
-  /** Problem to result in one line, for the project index. */
   oneLiner: string;
   tags: string[];
   context: string;
   period: string;
   team: string;
   role: string;
+  /** Big numbers shown in the story, all measured from the repository. */
+  stats: { value: string; label: string }[];
   problem: string;
   solution: string[];
   result: string[];
@@ -56,7 +62,9 @@ export type CaseStudy = {
   evidence: string;
   commits: Commit[];
   stack: string[];
-  visual: "galaga" | "cree-architecture" | "federation" | "eventease";
+  visual: "galaga" | "cree-architecture" | "federation" | "eventease" | "accessu";
+  /** Real screenshots. When present they're shown instead of the diagram in the scroll story. */
+  shots?: Shot[];
   links: { label: string; href: string }[];
   note?: string;
 };
@@ -66,10 +74,12 @@ export const profile = {
   role: "Computing Science, University of Alberta",
   headline: "From a blank repo to production.",
   intro:
-    "I'm a Computing Science student at the University of Alberta. I've taken a client's language platform live, built the notification backend for an Android app, and written a C++ game engine. I'm looking for a Summer 2027 software or ML internship.",
+    "I'm a Computing Science student at the University of Alberta. I've taken a client's language platform live, built most of an Android app's organizer side and backend, and written a C++ game engine. I'm looking for a Summer 2027 software or ML internship.",
   manifesto:
-    "I like owning the parts that make a project real: the deploy pipeline, the backend that has to work when nobody is watching, the bug that only shows up on another team's server. On four of my five team projects I was the first or second biggest contributor.",
-  manifestoHighlights: ["deploy pipeline", "backend", "another team's server"],
+    "I like owning the parts that make a project real: the deploy pipeline, the backend that has to work when nobody is watching, the bug that only shows up on another team's server. Across five team projects I've written over 39,000 lines that are still in the final code.",
+  // Shown in the middle of the launch sequence, after the headline flies past.
+  arrival: ["Five team projects. 39,000 of my lines in the final code.", "Here's what I built."],
+  manifestoHighlights: ["deploy pipeline", "backend", "another team's server", "39,000 lines"],
   location: "Edmonton, Alberta",
   seeking: "Software engineering and AI/ML internships, Summer 2027",
   email: "swayam2@ualberta.ca",
@@ -79,19 +89,17 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/swayam-sagar-948323256",
   resume: "", // put resume.pdf in /public, then set this to "/resume.pdf"
 
-  // Tools used in shipped projects, shown in the scrolling strip.
-  tools: ["Docker", "GitHub Actions", "PostgreSQL", "SvelteKit", "TypeScript", "Firebase", "Java", "Android", "Django", "Python", "C++", "PyTorch", "Caddy", "Playwright", "Heroku", "Kotlin"],
+  tools: ["Docker", "GitHub Actions", "PostgreSQL", "SvelteKit", "TypeScript", "Firebase", "Java", "Android", "Kotlin", "Django", "Python", "C++", "PyTorch", "Caddy", "Playwright", "Heroku"],
 
   // Add 2-3 real quotes from a TA, teammate or the ALTLab client. The section appears once this has entries.
   testimonials: [] as Testimonial[],
 
-  // My commits on every team project, from each repository's history.
   ledger: [
-    { project: "Plains Cree Reader", slug: "plains-cree-reader", kind: "Client project", team: 7, mine: 66, total: 238, rank: "1st", period: "2026" },
-    { project: "Social Distribution", slug: "social-distribution", kind: "Course project", team: 5, mine: 91, total: 335, rank: "2nd", period: "2026" },
-    { project: "EventEase", slug: "eventease", kind: "Course project", team: 6, mine: 58, total: 269, rank: "2nd", period: "2025" },
-    { project: "AccessU", kind: "Hackathon", team: 3, mine: 6, total: 17, rank: "2nd", period: "2026" },
-    { project: "MigraineMinder", kind: "Hackathon", team: 4, mine: 3, total: 58, period: "2025" },
+    { project: "EventEase", slug: "eventease", kind: "Android app", team: 6, mine: 58, total: 269, linesMine: 21135, linesTotal: 54876, rank: "2nd", period: "2025" },
+    { project: "Social Distribution", slug: "social-distribution", kind: "Federated web app", team: 5, mine: 91, total: 335, linesMine: 6851, linesTotal: 26324, rank: "2nd", period: "2026" },
+    { project: "Plains Cree Reader", slug: "plains-cree-reader", kind: "Client project", team: 7, mine: 66, total: 238, linesMine: 3631, linesTotal: 24929, rank: "1st", period: "2026" },
+    { project: "AccessU", slug: "accessu", kind: "Hackathon", team: 3, mine: 6, total: 17, linesMine: 3278, linesTotal: 5870, rank: "1st", period: "2026" },
+    { project: "MigraineMinder", kind: "Hackathon", team: 4, mine: 3, total: 58, linesMine: 4125, linesTotal: 13681, period: "2025" },
   ] as LedgerRow[],
 
   education: {
@@ -114,26 +122,85 @@ export const profile = {
 
   caseStudies: [
     {
+      slug: "eventease",
+      title: "EventEase",
+      oneLiner: "Built most of the organizer app, the backend that runs its lottery, and nearly half its tests.",
+      tags: ["Android", "Backend", "Testing"],
+      context: "Android event app, software engineering course",
+      period: "Sep – Dec 2025",
+      team: "6 developers",
+      role: "Organizer app, Cloud Functions backend, notifications, device login and 45% of the test suite",
+      stats: [
+        { value: "21,135", label: "lines I wrote in the final app, 38% of it" },
+        { value: "211", label: "of the team's 465 automated tests" },
+        { value: "95%", label: "of the Cloud Functions backend" },
+      ],
+      problem:
+        "Popular events fill up. Organizers needed to create events, run a fair lottery from the waitlist, invite people with a deadline and tell everyone else, while entrants needed to sign up without friction and hear back without refreshing the app.",
+      solution: [
+        "Built most of the organizer side: creating and editing events with capacity, sample size, deadlines and posters, an events dashboard, entrants grouped by status, waitlist management, and a map of where entrants signed up from.",
+        "Wrote the Firebase Cloud Functions backend: push notifications through Firebase Cloud Messaging in batches with retries and dead-token cleanup, the scheduled lottery that draws entrants at random, and 'sorry' notices for everyone not chosen.",
+        "Built the invitation flow around it: response deadlines that expire on time, replacement draws when someone declines, and the app's notification channels and device tokens.",
+        "Built onboarding and sign-in: device-based login instead of passwords, profile setup, and a staged flow that explains and requests location and notification permissions.",
+        "Wrote 211 of the team's 465 tests: unit, integration, edge-case, user-story and full end-to-end workflow tests.",
+      ],
+      result: [
+        "Organizers run an event from creation to final guest list without leaving the app, and entrants are told at every step automatically.",
+        "The lottery can never invite more people than an event has room for.",
+        "21,135 of the 54,876 lines in the final codebase are mine, and so are 211 of its 465 tests.",
+      ],
+      decisions: [
+        {
+          choice: "Send notifications from Cloud Functions, not the app",
+          why: "A server-side trigger fires whenever a notification is written, so messages go out even when the organizer's or entrant's app is closed.",
+        },
+        {
+          choice: "Device-based login instead of passwords",
+          why: "Entrants stay signed in on their phone without managing another password, which matters for a sign-up-and-forget app.",
+        },
+      ],
+      hardPart: {
+        title: "Never invite more people than there are spots",
+        body: "The lottery runs on a schedule, and entrants can decline or be replaced, so drawing the full sample size each time could over-invite. Each run counts who is already selected, draws only the open spots with a fair shuffle, and checks the total again before writing.",
+      },
+      evidence: "21,135 lines (38% of the app) and 211 of 465 tests",
+      commits: [
+        { date: "2025-10-26", message: "Add Base Android Project" },
+        { date: "2025-11-06", message: "created organizer , create, oragnizer_event, organizer_account functionality" },
+        { date: "2025-11-21", message: "Added Notification Functionality , testing left" },
+        { date: "2025-11-26", message: "added test for workflow" },
+      ],
+      stack: ["Java", "Android", "Firebase Cloud Functions", "Node.js", "Firestore", "Firebase Cloud Messaging", "Google Maps", "JUnit"],
+      visual: "eventease",
+      links: [{ label: "Source code", href: "https://github.com/RISCVI-301/CMPUT301F25riscvi" }],
+    },
+    {
       slug: "plains-cree-reader",
       title: "Plains Cree Reader",
-      oneLiner: "Took a client's reading platform from laptops to a live, tested production site.",
-      tags: ["DevOps", "CI/CD", "Full-stack"],
+      oneLiner: "Took a client's reading platform from laptops to a live, tested production site, and wired it to their corpus API.",
+      tags: ["DevOps", "Backend", "Client work"],
       context: "Client project for ALTLab (Alberta Language Technology Lab)",
       period: "Sep 2026 – present",
       team: "7 developers",
-      role: "Deployment and CI/CD owner; Scrum Master for sprints 2 and 3",
+      role: "Deployment and CI/CD owner, Korp API integration, Scrum Master for sprints 2 and 3",
+      stats: [
+        { value: "66", label: "of the team's 238 commits, the most of anyone" },
+        { value: "8", label: "automated checks on every pull request" },
+        { value: "1 click", label: "to release to production" },
+      ],
       problem:
         "ALTLab's Plains Cree texts lived in Korp, a corpus-search tool built for linguists. Learners had no simple way to read a story, tap a word and see what it means, and our team's app only ran on our own laptops.",
       solution: [
+        "Researched ALTLab's Korp corpus API, documented how it behaves, and wrote the app's server-side client for searching, loading texts and listing collections, with unit tests.",
         "Packaged the SvelteKit app in a multi-stage Docker image and wrote a Compose stack with PostgreSQL and Caddy for automatic HTTPS, on two self-hosted Cybera servers for staging and production.",
         "Built CI on a self-hosted GitHub Actions runner: 8 automated checks on every pull request, including lint, type-checking, unit tests and the team's 250+ Playwright end-to-end tests on Chromium and WebKit.",
         "Added CD: staging deploys itself when CI passes on main and is smoke-tested right after; production deploys with one click.",
-        "Built reader features: searching several collections at once, keyboard navigation between words, and clear errors when the corpus service is down.",
+        "Built reader and search features, wrote user-story end-to-end tests, drew the UML class and sequence diagrams, and kept the traceability matrix for all 54 user stories.",
       ],
       result: [
         "The team went from laptops only to live staging and production sites over HTTPS.",
         "Every change is tested automatically before it can merge, and a release is one click.",
-        "Top committer on the team: 66 of 238 commits.",
+        "Most commits on the team: 66 of 238.",
       ],
       decisions: [
         {
@@ -149,11 +216,11 @@ export const profile = {
         title: "Words that wouldn't match",
         body: "Some dictionary entries are spelled with ý, like ayamihêwiýiniwak, while the same word in the texts uses a plain y, so tapping it found nothing. I changed the lookup so a y in the text also finds entries spelled with ý. The same week I fixed the search page crashing whenever two texts' results shared a sentence number.",
       },
-      evidence: "66 of the team's 238 commits, the most of anyone",
+      evidence: "66 of 238 commits, the most on the team",
       commits: [
         { date: "2026-10-18", message: "ci: add CD (auto-deploy staging after CI, manual deploy to production)" },
         { date: "2026-10-18", message: "build: add multi-stage Dockerfile for the app" },
-        { date: "2026-10-13", message: "fix: search page crashed when results from different texts shared a sentence number" },
+        { date: "2026-10-18", message: "feat: search several collections at once" },
         { date: "2026-10-12", message: "fix: find dictionary entries spelled with ý (e.g. ayamihêwiýiniwak) when the text uses y" },
       ],
       stack: ["SvelteKit", "TypeScript", "PostgreSQL", "Docker", "Caddy", "GitHub Actions", "Playwright"],
@@ -162,72 +229,32 @@ export const profile = {
       note: "The code belongs to the course organization, so the repository isn't public.",
     },
     {
-      slug: "eventease",
-      title: "EventEase",
-      oneLiner: "Built the backend that picks event entrants fairly and tells them automatically.",
-      tags: ["Backend", "Android", "Firebase"],
-      context: "Android event app, software engineering course",
-      period: "Sep – Dec 2025",
-      team: "6 developers",
-      role: "Notification backend, entrant lottery and the organizer side of the app",
-      problem:
-        "Popular events fill up. Organizers needed a fair way to pick entrants from a waitlist, invite them with a deadline, and tell everyone else, without anyone having to refresh the app.",
-      solution: [
-        "Wrote the Firebase Cloud Functions backend: a Firestore-triggered function that sends push notifications through Firebase Cloud Messaging in batches, retries temporary failures and removes dead device tokens.",
-        "Built a scheduled lottery that draws entrants at random from the waitlist, capped at the spots still open, invites them with a response deadline, and sends 'sorry' notices to everyone not chosen.",
-        "Built the organizer screens: creating events with capacity, sample size and deadlines, viewing entrants by status, and managing the waitlist.",
-        "Moved sign-in from passwords to device-based login, and wrote integration tests for notifications, Firebase and the user stories.",
-      ],
-      result: [
-        "Entrants hear about selection, deadlines and rejections automatically, even with the app closed.",
-        "The lottery can never invite more people than an event has room for.",
-        "I wrote about 95% of the Cloud Functions code and made 58 of 269 commits, second-most on the team.",
-      ],
-      decisions: [
-        {
-          choice: "Send notifications from Cloud Functions, not the app",
-          why: "A server-side trigger fires whenever a notification is written, so messages go out even when the organizer's or entrant's app is closed.",
-        },
-        {
-          choice: "Device-based login instead of passwords",
-          why: "Entrants stay signed in on their phone without managing another password.",
-        },
-      ],
-      hardPart: {
-        title: "Never invite more people than there are spots",
-        body: "The lottery runs on a schedule, and entrants can decline or be replaced, so drawing the full sample size each time could over-invite. Each run counts who is already selected, draws only the open spots with a fair shuffle, and checks the total again before writing.",
-      },
-      evidence: "58 of 269 commits, second-most; about 95% of the Cloud Functions",
-      commits: [
-        { date: "2025-11-06", message: "created organizer , create, oragnizer_event, organizer_account functionality" },
-        { date: "2025-11-21", message: "Added Notification Functionality , testing left" },
-        { date: "2025-11-26", message: "added test for workflow" },
-      ],
-      stack: ["Java", "Android", "Firebase Cloud Functions", "Node.js", "Firestore", "Firebase Cloud Messaging"],
-      visual: "eventease",
-      links: [{ label: "Source code", href: "https://github.com/RISCVI-301/CMPUT301F25riscvi" }],
-    },
-    {
       slug: "social-distribution",
       title: "Social Distribution",
-      oneLiner: "Made our server share follows and posts with other teams' servers, reliably.",
-      tags: ["Backend", "REST APIs", "Distributed systems"],
+      oneLiner: "Built the follow system, API and federation that let our servers share a social network with other teams'.",
+      tags: ["Full-stack", "REST APIs", "Distributed systems"],
       context: "Federated social network, web applications course",
       period: "Jan – Apr 2026",
       team: "5 developers, each running their own server",
-      role: "Full-stack: authors API, follow system, API design, auth, deployment and federation",
+      role: "Authors API, follow system, frontend pages, API design, auth, deployment and federation",
+      stats: [
+        { value: "6,851", label: "lines I wrote in the final code" },
+        { value: "2,750", label: "lines of automated tests" },
+        { value: "91", label: "commits, second-most on the team" },
+      ],
       problem:
         "Each of us ran a separate server, and servers built by other teams had to exchange authors, posts, follows and likes with ours. There was no shared database to fall back on.",
       solution: [
-        "Built the Authors API and the whole follow system: request, accept and deny flows, followers and following endpoints, the screens for them, and Feed and Friends filters.",
+        "Built the Authors API and the whole follow system: request, accept and deny flows, followers and following endpoints, and Feed and Friends filters on the stream.",
+        "Built the frontend for it: the Manage Connections page, the follow-request panel, profile tabs, and live updates that refresh when a remote server accepts a follow.",
         "Standardized the REST API after TA review so every author, post, comment and like has one fully qualified ID that works across servers, with consistent field names.",
-        "Added token authentication, stopped double-clicks from creating duplicate posts, and deployed my node on Heroku with PostgreSQL.",
-        "Built federation: cross-server follows and unfollows, remote post and image sync, and peer checks so only trusted servers' posts appear.",
+        "Added token authentication and an admin approval step for new sign-ups, stopped double-clicks from creating duplicate posts, and deployed my node on Heroku with PostgreSQL.",
+        "Built federation: cross-server follows and unfollows, remote post and image sync with background commands, and peer checks so only trusted servers' posts appear.",
       ],
       result: [
         "Our five nodes and partner teams' nodes exchange follows and posts, and both sides agree on who follows whom.",
-        "130+ automated tests cover the API, auth and follow flows.",
-        "91 of 335 commits, second-most on the team.",
+        "2,750 lines of tests cover the API, auth and follow flows.",
+        "6,851 lines in the final code are mine, 26% of it.",
       ],
       decisions: [
         {
@@ -243,16 +270,72 @@ export const profile = {
         title: "Other teams' servers didn't talk like ours",
         body: "Partner nodes sent the same message in different shapes: an actor as a plain string instead of an object, inbox URLs with or without a trailing slash, follow acceptances in different formats. Follows got stuck as pending on one side. I made our inbox accept each variant, added a trailing-slash fallback when delivering, and wrote reconciliation so both servers end up agreeing.",
       },
-      evidence: "91 of 335 commits, second-most, and 130+ automated tests",
+      evidence: "6,851 lines (26%), 2,750 lines of tests, 91 commits",
       commits: [
-        { date: "2026-03-07", message: "feat(follow): add PENDING/ACCEPTED status for follow requests" },
+        { date: "2026-03-07", message: "feat(follow): add web UI for follow/unfollow and approve/deny" },
         { date: "2026-03-21", message: "feat(api-auth): add token authentication endpoint and DRF token auth defaults with basic token obtain tests" },
+        { date: "2026-03-24", message: "vfeat(web): poll follow_status and reload when remote accepts" },
         { date: "2026-03-30", message: "fix(federation): try trailing-slash inbox fallback for remote follow delivery" },
-        { date: "2026-04-07", message: "Fix remote unfollow parsing when actor is sent as string" },
       ],
-      stack: ["Python", "Django", "Django REST Framework", "PostgreSQL", "Heroku"],
+      stack: ["Python", "Django", "Django REST Framework", "PostgreSQL", "JavaScript", "Heroku"],
       visual: "federation",
+      shots: [
+        { src: "/work/sd-stream.webp", alt: "Social Distribution stream with posts from followed authors and a follow request waiting for approval", caption: "The stream, with a follow request waiting", frame: "browser" },
+        { src: "/work/sd-connections.webp", alt: "Manage Connections page listing follow requests, following, sent requests and followers", caption: "Manage Connections, which I built", frame: "browser" },
+        { src: "/work/sd-profile.webp", alt: "An author profile page with posts and follower counts", caption: "An author profile", frame: "browser" },
+      ],
       links: [{ label: "Source code", href: "https://github.com/Swayam1129/w26-socialdistribution-turquoise" }],
+      note: "Screenshots are from the app running locally with demo accounts.",
+    },
+    {
+      slug: "accessu",
+      title: "AccessU",
+      oneLiner: "Wrote most of a voice-first navigation app that guides blind and low-vision students across campus.",
+      tags: ["Android", "Accessibility", "Hackathon"],
+      context: "Hackathon project",
+      period: "Feb 2026",
+      team: "3 developers",
+      role: "Indoor and outdoor navigation, camera QR routing and transit",
+      stats: [
+        { value: "56%", label: "of the final code, the most on the team" },
+        { value: "3,278", label: "lines of Kotlin and route data" },
+        { value: "4 days", label: "from first commit to demo" },
+      ],
+      problem:
+        "Campus maps and signs assume you can see them. Blind and low-vision students often need someone to help them find the right entrance, follow a corridor or catch the right bus.",
+      solution: [
+        "Built indoor navigation: buildings modelled as graphs of QR checkpoints, a shortest-path router, and spoken step-by-step directions that reroute when you scan a wrong-path code.",
+        "Built camera navigation that scans the QR checkpoints and verifies you're on the right path.",
+        "Built outdoor campus routing with Google Directions, geocoding and place search, plus a campus graph of buildings.",
+        "Built the transit layer: Edmonton Transit's GTFS schedule, live arrivals, an on-bus monitor that announces stops, and weather alerts.",
+      ],
+      result: [
+        "A working, hands-free demo that routes from one campus building to another, indoors and out.",
+        "I wrote 56% of the final code, more than anyone else on the team.",
+      ],
+      decisions: [
+        {
+          choice: "QR checkpoints for indoor positioning",
+          why: "GPS doesn't work well inside buildings, and printed QR codes are cheap, precise and easy for a phone camera to find.",
+        },
+        {
+          choice: "Shortest path over a building graph",
+          why: "Treating each checkpoint as a node makes rerouting instant: scan any code and the app recomputes the route from there.",
+        },
+      ],
+      hardPart: {
+        title: "Getting lost has to be recoverable",
+        body: "A wrong turn is normal, so the app can't assume people follow the route perfectly. Every QR code is a node in the building graph; scanning one the route didn't expect simply becomes the new starting point, and the app speaks the corrected directions.",
+      },
+      evidence: "3,278 of 5,870 lines, 56% of the app",
+      commits: [
+        { date: "2026-02-20", message: "feat: transit + weather – GTFS, ETS Realtime, OnBusMonitor, WeatherService" },
+        { date: "2026-02-20", message: "app folder" },
+        { date: "2026-02-24", message: "Added ReadMe" },
+      ],
+      stack: ["Kotlin", "Android", "Jetpack Compose", "CameraX", "Google Maps SDK", "GTFS"],
+      visual: "accessu",
+      links: [{ label: "Source code", href: "https://github.com/Swayam1129/routecause_AccessU" }],
     },
     {
       slug: "galaga",
@@ -263,6 +346,11 @@ export const profile = {
       period: "Sep – Oct 2026",
       team: "Solo",
       role: "Engine systems and the whole game",
+      stats: [
+        { value: "40", label: "enemies per wave, on Bézier flight paths" },
+        { value: "6", label: "game states in the state machine" },
+        { value: "0", label: "bullets that tunnel through targets" },
+      ],
       problem:
         "Build a reusable 2D engine in modern C++ on SFML, then prove it works by writing a full Galaga that only talks to the engine's interfaces.",
       solution: [
@@ -307,7 +395,7 @@ export const profile = {
       org: "University of Alberta, for ALTLab",
       period: "Sep 2026 – present",
       points: [
-        "Own deployment and CI/CD for a Plains Cree reading platform; Scrum Master for sprints 2 and 3 in a team of seven.",
+        "Own deployment, CI/CD and the corpus API integration for a Plains Cree reading platform; Scrum Master for sprints 2 and 3 in a team of seven.",
       ],
     },
     {
@@ -319,32 +407,21 @@ export const profile = {
   ] as Role[],
 
   skills: {
-    Languages: ["Python", "Java", "TypeScript", "JavaScript", "C++", "C", "Kotlin", "SQL", "Bash"],
+    Languages: ["Python", "Java", "TypeScript", "JavaScript", "Kotlin", "C++", "C", "SQL", "Bash"],
     "Web and backend": ["SvelteKit", "Next.js", "React", "Django REST Framework", "Node.js", "REST APIs", "PostgreSQL", "Firebase"],
     "Infrastructure and testing": ["Docker", "GitHub Actions", "Caddy", "Linux servers", "Heroku", "Playwright", "JUnit"],
     "Machine learning": ["PyTorch", "scikit-learn", "LangChain", "FAISS", "OpenAI API"],
   } as Record<string, string[]>,
 
-  // Hackathons and smaller projects. Editable in /admin once the database is seeded.
+  // Smaller projects. Editable in /admin once the database is seeded.
   projects: [
-    {
-      slug: "accessu",
-      title: "AccessU",
-      summary:
-        "Voice-first campus navigation for blind and low-vision students. I built the transit layer: Edmonton Transit's GTFS schedule, live arrival data, an on-bus monitor that announces stops, and weather alerts, plus QR routes for indoor navigation.",
-      details: [],
-      stack: ["Kotlin", "Android", "GTFS", "Google Maps SDK"],
-      period: "Feb 2026",
-      context: "Hackathon, team of 3",
-      repo: "https://github.com/Swayam1129/routecause_AccessU",
-    },
     {
       slug: "migraineminder",
       title: "MigraineMinder",
       summary:
-        "Spots early signs of a migraine from a Muse 2 EEG headband and dims the lights through an Arduino. I built the machine learning pipeline: the EEG classifier, generative data augmentation for the small dataset, and the prediction script.",
+        "Spots early signs of a migraine from a Muse 2 EEG headband and dims the lights through an Arduino. I wrote the machine learning side, about 4,100 lines: five model families for EEG signals (1D CNN, LSTM, CNN-LSTM, Transformer and a CNN-LSTM-Transformer hybrid), a classifier and generative data augmentation for the small dataset.",
       details: [],
-      stack: ["Python", "PyTorch", "scikit-learn", "Muse 2 EEG", "Arduino"],
+      stack: ["Python", "PyTorch", "scikit-learn", "Muse 2 EEG"],
       period: "Nov 2025",
       context: "Hackathon, team of 4",
       repo: "https://github.com/sleepsonrockss/MigraineMinder",
@@ -362,13 +439,23 @@ export const profile = {
     {
       slug: "mandelbrot",
       title: "Mandelbrot and Julia sets",
-      summary: "Renders Mandelbrot and Julia set fractals in C, with zoom and iteration settings from the command line, written out as PPM images.",
+      summary: "Renders Mandelbrot and Julia set fractals in C at deep zoom levels, written out as images. The pictures in the gallery above are its output.",
       details: [],
       stack: ["C"],
       period: "Oct 2024",
       repo: "https://github.com/Swayam1129/MandelBrot-and-Julia-Set",
     },
   ] as Project[],
+
+  // Real images for the horizontal gallery. Add your own screenshots here.
+  gallery: [
+    { src: "/work/galaga-poster.webp", alt: "Galaga running on my C++ engine", caption: "Galaga on my C++ engine" },
+    { src: "/work/sd-stream.webp", alt: "Social Distribution stream", caption: "Social Distribution, the stream" },
+    { src: "/work/fractal-13.webp", alt: "Deep zoom into the Mandelbrot set", caption: "Mandelbrot, deep zoom" },
+    { src: "/work/sd-connections.webp", alt: "Social Distribution connections page", caption: "Manage Connections" },
+    { src: "/work/fractal-16.webp", alt: "A Julia set fractal", caption: "Julia set" },
+    { src: "/work/fractal-12.webp", alt: "Mandelbrot set at a 3,000,000x zoom", caption: "Mandelbrot at 3,000,000x" },
+  ],
 
   suggestedQuestions: [
     "What did Swayam build for EventEase?",

@@ -9,6 +9,9 @@ import { SectionNav } from "@/components/motion/SectionNav";
 import { ScrollFill } from "@/components/motion/ScrollFill";
 import { WorkStory } from "@/components/motion/WorkStory";
 import { Goodbye } from "@/components/motion/Goodbye";
+import { Starfield } from "@/components/motion/Starfield";
+import { LaunchProgress } from "@/components/motion/LaunchProgress";
+import { Gallery } from "@/components/motion/Gallery";
 
 export const revalidate = 3600;
 
@@ -16,6 +19,7 @@ const sections = [
   { id: "top", label: "Intro" },
   { id: "approach", label: "Approach" },
   { id: "work", label: "Work" },
+  { id: "gallery", label: "Gallery" },
   { id: "record", label: "Record" },
   { id: "side", label: "Side projects" },
   { id: "about", label: "About" },
@@ -36,6 +40,8 @@ export default async function Home() {
     problem: c.problem,
     solution: c.solution,
     result: c.result,
+    stats: c.stats,
+    shots: c.shots,
     visual: <StudyVisual kind={c.visual} />,
   }));
 
@@ -47,16 +53,19 @@ export default async function Home() {
       />
 
       <main id="main">
-        <section id="top" className="hero wrap" aria-labelledby="hero-h">
-          <div className="hero-inner">
-            <p className="kicker">
-              <span className="dot" aria-hidden="true" />
-              {profile.name}, {profile.role}
-            </p>
-            <h1 id="hero-h" className="hero-title">
-              <span>From a blank repo</span> <span>to production.</span>
-            </h1>
-            <div className="hero-foot">
+        <LaunchProgress id="top" labelledBy="hero-h">
+          <div className="launch-sticky">
+            <Starfield density={1.5} />
+            <div className="launch-stage">
+              <p className="kicker launch-kicker">
+                <span className="dot" aria-hidden="true" />
+                {profile.name}, {profile.role}
+              </p>
+              <h1 id="hero-h" className="hero-title launch-title">
+                <span>From a blank repo</span> <span>to production.</span>
+              </h1>
+            </div>
+            <div className="launch-foot wrap">
               <p className="hero-intro">{profile.intro}</p>
               <p className="hero-actions">
                 <a href={`mailto:${profile.email}`} className="btn btn-gold">
@@ -67,12 +76,16 @@ export default async function Home() {
                 </a>
               </p>
             </div>
+            <p className="launch-arrive" aria-hidden="true">
+              <span>{profile.arrival[0]}</span>
+              <span>{profile.arrival[1]}</span>
+            </p>
+            <p className="launch-cue" aria-hidden="true">
+              <span />
+              Scroll to launch
+            </p>
           </div>
-          <a href="#approach" className="scroll-cue" aria-label="Scroll to the next section">
-            <span aria-hidden="true" />
-            Scroll
-          </a>
-        </section>
+        </LaunchProgress>
 
         <ToolStrip tools={profile.tools} />
 
@@ -91,6 +104,10 @@ export default async function Home() {
             </p>
           </div>
           <WorkStory items={stories} />
+        </section>
+
+        <section id="gallery" aria-labelledby="gallery-h">
+          <Gallery items={profile.gallery} />
         </section>
 
         <section id="record" className="record wrap" aria-labelledby="record-h">

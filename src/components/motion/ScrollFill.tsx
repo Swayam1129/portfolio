@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 /**
  * Text that lights up word by word as it scrolls through the viewport.
- * Highlight phrases end up gold; everything else ends up full white.
+ * Highlight phrases end up in the accent colour; everything else ends up full white.
  */
 export function ScrollFill({ text, highlights }: { text: string; highlights: string[] }) {
   const ref = useRef<HTMLParagraphElement>(null);

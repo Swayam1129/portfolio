@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { CountUp } from "./CountUp";
 
 export type StoryItem = {
   slug: string;
@@ -15,8 +16,34 @@ export type StoryItem = {
   problem: string;
   solution: string[];
   result: string[];
+  stats: { value: string; label: string }[];
+  shots?: { src: string; alt: string; caption: string; frame: "browser" | "phone" | "plain" }[];
   visual: ReactNode;
 };
+
+/** Real screenshots in a device frame; the one shown follows the step you're reading. */
+function Screens({ shots, step }: { shots: NonNullable<StoryItem["shots"]>; step: number }) {
+  const i = Math.min(shots.length - 1, Math.max(0, step));
+  const frame = shots[0].frame;
+  return (
+    <figure className={`device device-${frame}`}>
+      {frame === "browser" && (
+        <div className="device-bar" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+      )}
+      <div className="device-screen">
+        {shots.map((s, k) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={s.src} src={s.src} alt={s.alt} className={k === i ? "is-on" : undefined} loading="lazy" />
+        ))}
+      </div>
+      <figcaption>{shots[i].caption}</figcaption>
+    </figure>
+  );
+}
 
 const STEPS = ["Problem", "What I built", "Result"] as const;
 
@@ -57,7 +84,7 @@ function Story({ item }: { item: StoryItem }) {
               ))}
             </ol>
           </div>
-          <div className="story-visual">{item.visual}</div>
+          <div className="story-visual">{item.shots?.length ? <Screens shots={item.shots} step={step} /> : item.visual}</div>
         </div>
 
         <div className="story-steps">
@@ -73,6 +100,16 @@ function Story({ item }: { item: StoryItem }) {
               <span>{item.role}</span>
               <span className="muted">{item.team}</span>
             </p>
+            <dl className="story-stats">
+              {item.stats.map((s) => (
+                <div key={s.label}>
+                  <dt>
+                    <CountUp value={s.value} />
+                  </dt>
+                  <dd>{s.label}</dd>
+                </div>
+              ))}
+            </dl>
           </header>
 
           <div className={stepClass(0)} data-step={0} ref={(el) => { refs.current[0] = el; }}>
