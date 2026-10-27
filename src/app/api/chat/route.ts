@@ -17,14 +17,15 @@ async function systemPrompt(): Promise<string> {
   const facts = {
     name: profile.name,
     role: profile.role,
-    intro: profile.intro,
+    headline: profile.headline,
     location: profile.location,
     seeking: profile.seeking,
     contact: { email: profile.email, linkedin: profile.linkedin, github: profile.github },
     education: profile.education,
     experience: profile.experience,
     skills: profile.skills,
-    projects,
+    caseStudies: profile.caseStudies,
+    otherProjects: projects,
   };
   return [
     `You are the assistant on ${profile.name}'s portfolio site. Visitors are mostly recruiters and engineers.`,

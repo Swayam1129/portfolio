@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/bricolage-grotesque";
 import "@fontsource-variable/instrument-sans";
+import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { profile } from "@/content/profile";
 
 export const metadata: Metadata = {
   title: `${profile.name}, software and ML`,
-  description: profile.intro,
-  openGraph: { title: profile.name, description: profile.intro, type: "website" },
+  description: profile.headline,
+  openGraph: { title: profile.name, description: profile.headline, type: "website" },
 };
 
 export const viewport: Viewport = {

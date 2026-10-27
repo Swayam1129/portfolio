@@ -1,14 +1,6 @@
 import { getGitHubStats } from "@/lib/github";
 
-const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-
-function ago(iso: string): string {
-  const days = Math.round((Date.parse(iso) - Date.now()) / 86_400_000);
-  if (Math.abs(days) < 1) return "today";
-  if (Math.abs(days) < 30) return rtf.format(days, "day");
-  if (Math.abs(days) < 365) return rtf.format(Math.round(days / 30), "month");
-  return rtf.format(Math.round(days / 365), "year");
-}
+const fmt = new Intl.DateTimeFormat("en-CA", { month: "short", day: "numeric", timeZone: "America/Edmonton" });
 
 export async function GitHubActivity({ profileUrl }: { profileUrl: string }) {
   const stats = await getGitHubStats();
@@ -19,37 +11,42 @@ export async function GitHubActivity({ profileUrl }: { profileUrl: string }) {
       </p>
     );
   }
+  const max = Math.max(...stats.languages.map((l) => l.repos), 1);
 
   return (
     <div className="gh">
-      <div className="gh-langs">
-        <p className="gh-caption">
-          Languages across {stats.publicRepos} public repositories, updated hourly from the GitHub API
-        </p>
-        <div className="gh-bar" role="img" aria-label={stats.languages.map((l) => `${l.name} ${Math.round(l.share * 100)}%`).join(", ")}>
-          {stats.languages.map((l, i) => (
-            <span key={l.name} style={{ flexGrow: l.share, opacity: 1 - i * 0.13 }} />
-          ))}
-        </div>
-        <ul className="gh-legend">
-          {stats.languages.map((l, i) => (
-            <li key={l.name}>
-              <span className="gh-swatch" style={{ opacity: 1 - i * 0.13 }} aria-hidden="true" />
-              {l.name} <span className="muted">{Math.round(l.share * 100)}%</span>
-            </li>
-          ))}
-        </ul>
+      <div>
+        <p className="gh-caption">My latest public commits, refreshed hourly from GitHub</p>
+        {stats.commits.length === 0 ? (
+          <p className="muted">No recent public commits.</p>
+        ) : (
+          <ol className="commit-log">
+            {stats.commits.map((c) => (
+              <li key={c.url}>
+                <time dateTime={c.date}>{fmt.format(new Date(c.date))}</time>
+                <a href={c.url} className="commit-msg">
+                  {c.message}
+                </a>
+                <a href={c.repoUrl} className="commit-repo">
+                  {c.repo}
+                </a>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
 
       <div>
-        <p className="gh-caption">Recently pushed</p>
-        <ul className="gh-repos">
-          {stats.recent.map((r) => (
-            <li key={r.name}>
-              <a href={r.url}>{r.name}</a>
+        <p className="gh-caption">Main language of my {stats.publicRepos} public repositories</p>
+        <ul className="gh-langs">
+          {stats.languages.map((l) => (
+            <li key={l.name}>
+              <span className="gh-lang-name">{l.name}</span>
+              <span className="gh-lang-bar" aria-hidden="true">
+                <span style={{ width: `${(l.repos / max) * 100}%` }} />
+              </span>
               <span className="muted">
-                {r.language ? `${r.language}, ` : ""}
-                {ago(r.pushedAt)}
+                {l.repos} {l.repos === 1 ? "repo" : "repos"}
               </span>
             </li>
           ))}

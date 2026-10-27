@@ -2,8 +2,14 @@ import { asc, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { profile, type Project } from "@/content/profile";
 
-/** Projects from the database when configured (editable in /admin), otherwise from profile.ts. */
+const caseStudySlugs = new Set(profile.caseStudies.map((c) => c.slug));
+
+/** Smaller projects from the database when configured (editable in /admin), otherwise from profile.ts. */
 export async function getProjects(): Promise<Project[]> {
+  return (await loadProjects()).filter((p) => !caseStudySlugs.has(p.slug));
+}
+
+async function loadProjects(): Promise<Project[]> {
   const db = getDb();
   if (!db) return profile.projects;
   try {

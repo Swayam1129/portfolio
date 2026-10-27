@@ -8,3 +8,7 @@ out/
 next-env.d.ts
 .vercel
 .DS_Store
+.env*
+
+# LinkedIn media, not part of the site
+*-for-linkedin.gif

@@ -1,30 +1,25 @@
 import { profile } from "@/content/profile";
 
-export type RepoSummary = {
-  name: string;
-  url: string;
-  description: string | null;
-  language: string | null;
-  stars: number;
-  pushedAt: string;
-};
+export type RecentCommit = { repo: string; repoUrl: string; message: string; url: string; date: string };
 
 export type GitHubStats = {
   publicRepos: number;
-  followers: number;
-  languages: { name: string; share: number }[];
-  recent: RepoSummary[];
+  languages: { name: string; repos: number }[];
+  commits: RecentCommit[];
 };
 
 type ApiRepo = {
   name: string;
   html_url: string;
-  description: string | null;
   language: string | null;
-  stargazers_count: number;
   pushed_at: string;
   fork: boolean;
-  size: number;
+  archived: boolean;
+};
+
+type ApiCommit = {
+  html_url: string;
+  commit: { message: string; author: { date: string } | null };
 };
 
 const user = process.env.GITHUB_USERNAME || profile.githubUser;
@@ -35,46 +30,51 @@ async function gh<T>(path: string): Promise<T> {
     "X-GitHub-Api-Version": "2022-11-28",
   };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-  // Cached for an hour so the site doesn't hit GitHub's rate limit.
+  // Cached for an hour so the site stays well under GitHub's rate limit.
   const res = await fetch(`https://api.github.com${path}`, { headers, next: { revalidate: 3600 } });
   if (!res.ok) throw new Error(`GitHub ${path}: ${res.status}`);
   return res.json() as Promise<T>;
 }
 
-/** Live numbers from the GitHub API. Returns null if GitHub can't be reached. */
+/** Live data from the GitHub API. Returns null if GitHub can't be reached. */
 export async function getGitHubStats(): Promise<GitHubStats | null> {
   try {
-    const [account, repos] = await Promise.all([
-      gh<{ public_repos: number; followers: number }>(`/users/${user}`),
-      gh<ApiRepo[]>(`/users/${user}/repos?per_page=100&sort=pushed`),
-    ]);
-    const own = repos.filter((r) => !r.fork);
+    const repos = (await gh<ApiRepo[]>(`/users/${user}/repos?per_page=100&sort=pushed`)).filter(
+      (r) => !r.fork && !r.archived,
+    );
 
-    // Language share weighted by repo size, a cheap proxy that needs one request instead of one per repo.
-    const weights = new Map<string, number>();
-    for (const r of own) {
-      if (!r.language) continue;
-      weights.set(r.language, (weights.get(r.language) ?? 0) + Math.max(r.size, 1));
-    }
-    const total = [...weights.values()].reduce((a, b) => a + b, 0) || 1;
-    const languages = [...weights.entries()]
-      .map(([name, w]) => ({ name, share: w / total }))
-      .sort((a, b) => b.share - a.share)
+    // Count repos by primary language. Byte counts would be skewed by vendored libraries.
+    const counts = new Map<string, number>();
+    for (const r of repos) if (r.language) counts.set(r.language, (counts.get(r.language) ?? 0) + 1);
+    const languages = [...counts.entries()]
+      .map(([name, n]) => ({ name, repos: n }))
+      .sort((a, b) => b.repos - a.repos)
       .slice(0, 6);
 
-    return {
-      publicRepos: account.public_repos,
-      followers: account.followers,
-      languages,
-      recent: own.slice(0, 5).map((r) => ({
-        name: r.name,
-        url: r.html_url,
-        description: r.description,
-        language: r.language,
-        stars: r.stargazers_count,
-        pushedAt: r.pushed_at,
-      })),
-    };
+    // Latest commits by this user from the three most recently pushed repos.
+    const perRepo = await Promise.all(
+      repos.slice(0, 3).map(async (r) => {
+        try {
+          const list = await gh<ApiCommit[]>(`/repos/${user}/${r.name}/commits?author=${user}&per_page=4`);
+          return list.map((c) => ({
+            repo: r.name,
+            repoUrl: r.html_url,
+            message: c.commit.message.split("\n")[0],
+            url: c.html_url,
+            date: c.commit.author?.date ?? r.pushed_at,
+          }));
+        } catch {
+          return [];
+        }
+      }),
+    );
+    const commits = perRepo
+      .flat()
+      .filter((c) => !/^merge /i.test(c.message))
+      .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+      .slice(0, 6);
+
+    return { publicRepos: repos.length, languages, commits };
   } catch (err) {
     console.error(err);
     return null;
