@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { profile } from "@/content/profile";
 import { ContactForm } from "@/components/ContactForm";
 
@@ -26,11 +27,11 @@ export function SiteHeader() {
   );
 }
 
-export function SiteFooter() {
+export function SiteFooter({ finale }: { finale?: ReactNode } = {}) {
   return (
     <footer id="contact" className="site-foot" aria-labelledby="contact-h">
       <div className="wrap foot-grid">
-        <div>
+        <div data-reveal>
           <p className="kicker">Open to Summer 2027 internships</p>
           <h2 id="contact-h" className="foot-title">
             Let&apos;s talk.
@@ -53,11 +54,12 @@ export function SiteFooter() {
           </ul>
           <p className="muted foot-where">Based in {profile.location}. Open to roles anywhere in Canada.</p>
         </div>
-        <div>
+        <div data-reveal>
           <p className="foot-form-title">Or send a message</p>
           <ContactForm />
         </div>
       </div>
+      {finale}
       <div className="wrap foot-base">
         <p>
           {profile.name}, {new Date().getFullYear()}

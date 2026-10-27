@@ -1,110 +1,120 @@
-import Link from "next/link";
-import { Fragment } from "react";
 import { profile } from "@/content/profile";
 import { getProjects } from "@/lib/projects";
 import { AskBox } from "@/components/AskBox";
 import { GitHubActivity } from "@/components/GitHubActivity";
 import { Ledger } from "@/components/Ledger";
-import { SiteFooter, SiteHeader, ToolStrip } from "@/components/SiteChrome";
+import { SiteFooter, ToolStrip } from "@/components/SiteChrome";
+import { StudyVisual } from "@/components/StudyVisual";
+import { SectionNav } from "@/components/motion/SectionNav";
+import { ScrollFill } from "@/components/motion/ScrollFill";
+import { WorkStory } from "@/components/motion/WorkStory";
+import { Goodbye } from "@/components/motion/Goodbye";
 
 export const revalidate = 3600;
 
-/** Wraps each highlight phrase in <mark>, keeping the rest of the text as is. */
-function highlight(text: string, phrases: string[]) {
-  const pattern = new RegExp(`(${phrases.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
-  return text.split(pattern).map((part, i) =>
-    phrases.includes(part) ? <mark key={i}>{part}</mark> : <Fragment key={i}>{part}</Fragment>,
-  );
-}
+const sections = [
+  { id: "top", label: "Intro" },
+  { id: "approach", label: "Approach" },
+  { id: "work", label: "Work" },
+  { id: "record", label: "Record" },
+  { id: "side", label: "Side projects" },
+  { id: "about", label: "About" },
+  { id: "contact", label: "Contact" },
+];
 
 export default async function Home() {
   const projects = await getProjects();
+  const stories = profile.caseStudies.map((c, i) => ({
+    slug: c.slug,
+    num: String(i + 1).padStart(2, "0"),
+    title: c.title,
+    oneLiner: c.oneLiner,
+    tags: c.tags,
+    period: c.period,
+    team: c.team,
+    role: c.role,
+    problem: c.problem,
+    solution: c.solution,
+    result: c.result,
+    visual: <StudyVisual kind={c.visual} />,
+  }));
 
   return (
     <>
-      <SiteHeader />
+      <SectionNav
+        sections={sections}
+        cta={profile.resume ? { label: "Résumé", href: profile.resume } : { label: "Email me", href: `mailto:${profile.email}` }}
+      />
 
       <main id="main">
-        <section className="hero wrap" aria-labelledby="hero-h">
-          <p className="kicker">
-            <span className="dot" aria-hidden="true" />
-            {profile.name}, {profile.role}
-          </p>
-          <h1 id="hero-h" className="hero-title">
-            <span>From a blank repo</span> <span>to production.</span>
-          </h1>
-          <div className="hero-foot">
-            <p className="hero-intro">{profile.intro}</p>
-            <p className="hero-actions">
-              <a href={`mailto:${profile.email}`} className="btn btn-gold">
-                Email me
-              </a>
-              <a href="#work" className="btn btn-ghost">
-                See the work
-              </a>
+        <section id="top" className="hero wrap" aria-labelledby="hero-h">
+          <div className="hero-inner">
+            <p className="kicker">
+              <span className="dot" aria-hidden="true" />
+              {profile.name}, {profile.role}
             </p>
+            <h1 id="hero-h" className="hero-title">
+              <span>From a blank repo</span> <span>to production.</span>
+            </h1>
+            <div className="hero-foot">
+              <p className="hero-intro">{profile.intro}</p>
+              <p className="hero-actions">
+                <a href={`mailto:${profile.email}`} className="btn btn-gold">
+                  Email me
+                </a>
+                <a href="#work" className="btn btn-ghost">
+                  See the work
+                </a>
+              </p>
+            </div>
           </div>
+          <a href="#approach" className="scroll-cue" aria-label="Scroll to the next section">
+            <span aria-hidden="true" />
+            Scroll
+          </a>
         </section>
 
         <ToolStrip tools={profile.tools} />
 
-        <section id="about" className="manifesto wrap" aria-labelledby="manifesto-h">
-          <h2 id="manifesto-h" className="kicker">
+        <section id="approach" className="manifesto wrap" aria-labelledby="manifesto-h">
+          <h2 id="manifesto-h" className="kicker" data-reveal>
             How I work
           </h2>
-          <p className="manifesto-text">{highlight(profile.manifesto, profile.manifestoHighlights)}</p>
+          <ScrollFill text={profile.manifesto} highlights={profile.manifestoHighlights} />
         </section>
 
         <section id="work" className="work wrap" aria-labelledby="work-h">
-          <div className="section-head">
+          <div className="section-head" data-reveal>
             <h2 id="work-h">Selected work</h2>
             <p className="section-lede">
-              Each project starts with the problem, then what I built and what changed. Open one for the full story.
+              Four projects, told the way I&apos;d explain them in an interview: the problem, what I built, and what changed.
             </p>
           </div>
-          <ol className="work-index">
-            {profile.caseStudies.map((c, i) => (
-              <li key={c.slug}>
-                <Link href={`/work/${c.slug}`} className="work-row">
-                  <span className="work-num" aria-hidden="true">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="work-main">
-                    <span className="work-title">{c.title}</span>
-                    <span className="work-line">{c.oneLiner}</span>
-                  </span>
-                  <span className="work-meta">
-                    <span className="work-tags">{c.tags.join(", ")}</span>
-                    <span className="work-period">{c.period}</span>
-                  </span>
-                  <span className="work-go" aria-hidden="true">
-                    Read
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
+          <WorkStory items={stories} />
         </section>
 
-        <section className="record wrap" aria-labelledby="record-h">
-          <div className="section-head">
+        <section id="record" className="record wrap" aria-labelledby="record-h">
+          <div className="section-head" data-reveal>
             <h2 id="record-h">Contribution record</h2>
             <p className="section-lede">
               How much of each team project I wrote, counted from the repositories. Useful when every résumé says
               &ldquo;team player&rdquo;.
             </p>
           </div>
-          <Ledger rows={profile.ledger} />
+          <div data-reveal>
+            <Ledger rows={profile.ledger} />
+          </div>
         </section>
 
         {projects.length > 0 && (
-          <section className="more wrap" aria-labelledby="more-h">
-            <div className="section-head">
+          <section id="side" className="more wrap" aria-labelledby="more-h">
+            <div className="section-head" data-reveal>
               <h2 id="more-h">Hackathons and side projects</h2>
+              <p className="section-lede">Smaller builds, each with what I personally did.</p>
             </div>
             <div className="project-list">
-              {projects.map((p) => (
-                <article key={p.slug} className="project">
+              {projects.map((p, i) => (
+                <article key={p.slug} className="project" data-reveal style={{ transitionDelay: `${(i % 2) * 90}ms` }}>
                   <p className="project-meta">{[p.context, p.period].filter(Boolean).join(", ")}</p>
                   <h3>{p.title}</h3>
                   <p>{p.summary}</p>
@@ -123,12 +133,12 @@ export default async function Home() {
 
         {profile.testimonials.length > 0 && (
           <section className="quotes wrap" aria-labelledby="quotes-h">
-            <div className="section-head">
+            <div className="section-head" data-reveal>
               <h2 id="quotes-h">What people I&apos;ve worked with say</h2>
             </div>
             <ul className="quote-list">
               {profile.testimonials.map((t) => (
-                <li key={t.name}>
+                <li key={t.name} data-reveal>
                   <blockquote>
                     <p>&ldquo;{t.quote}&rdquo;</p>
                   </blockquote>
@@ -141,21 +151,13 @@ export default async function Home() {
           </section>
         )}
 
-        <section className="ask-band wrap" aria-labelledby="ask-h">
-          <div>
-            <h2 id="ask-h">Short on time?</h2>
-            <p className="section-lede">Ask a question and get an answer drawn only from what&apos;s on this site.</p>
-          </div>
-          <AskBox suggestions={profile.suggestedQuestions} name={profile.name} />
-        </section>
-
-        <section className="about wrap" aria-labelledby="exp-h">
-          <div className="section-head">
+        <section id="about" className="about wrap" aria-labelledby="exp-h">
+          <div className="section-head" data-reveal>
             <h2 id="exp-h">Experience and education</h2>
           </div>
           <ol className="timeline">
             {profile.experience.map((r) => (
-              <li key={r.title}>
+              <li key={r.title} data-reveal>
                 <p className="timeline-when">{r.period}</p>
                 <div>
                   <h3>{r.title}</h3>
@@ -168,7 +170,7 @@ export default async function Home() {
                 </div>
               </li>
             ))}
-            <li>
+            <li data-reveal>
               <p className="timeline-when">{profile.education.period}</p>
               <div>
                 <h3>{profile.education.degree}</h3>
@@ -178,7 +180,7 @@ export default async function Home() {
               </div>
             </li>
           </ol>
-          <dl className="skills">
+          <dl className="skills" data-reveal>
             {Object.entries(profile.skills).map(([group, items]) => (
               <div key={group}>
                 <dt>{group}</dt>
@@ -186,17 +188,23 @@ export default async function Home() {
               </div>
             ))}
           </dl>
-        </section>
 
-        <section className="gh-band wrap" aria-labelledby="gh-h">
-          <div className="section-head">
-            <h2 id="gh-h">Lately on GitHub</h2>
+          <div className="ask-band" data-reveal>
+            <div>
+              <h3 className="ask-title">Short on time?</h3>
+              <p className="section-lede">Ask a question and get an answer drawn only from what&apos;s on this site.</p>
+            </div>
+            <AskBox suggestions={profile.suggestedQuestions} name={profile.name} />
           </div>
-          <GitHubActivity profileUrl={profile.github} />
+
+          <div className="gh-wrap" data-reveal>
+            <h3 className="ask-title">Lately on GitHub</h3>
+            <GitHubActivity profileUrl={profile.github} />
+          </div>
         </section>
       </main>
 
-      <SiteFooter />
+      <SiteFooter finale={<Goodbye email={profile.email} />} />
     </>
   );
 }

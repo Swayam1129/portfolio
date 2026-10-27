@@ -4,6 +4,7 @@ import "@fontsource-variable/atkinson-hyperlegible-next";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { profile } from "@/content/profile";
+import { RevealInit } from "@/components/motion/RevealInit";
 
 export const metadata: Metadata = {
   metadataBase: new URL(profile.site),
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <a href="#main" className="skip">Skip to content</a>
         {children}
+        <RevealInit />
       </body>
     </html>
   );
