@@ -8,16 +8,14 @@ import { profile } from "@/content/profile";
 export const metadata: Metadata = {
   metadataBase: new URL(profile.site),
   alternates: { canonical: "/" },
-  title: `${profile.name}, software and ML`,
-  description: profile.headline,
-  openGraph: { title: profile.name, description: profile.headline, type: "website" },
+  title: `${profile.name}, software engineering student`,
+  description: profile.intro,
+  openGraph: { title: profile.name, description: profile.intro, type: "website" },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAFAF7" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F1A14" },
-  ],
+  themeColor: "#0B0B0F",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

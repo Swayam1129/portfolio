@@ -1,82 +1,19 @@
-import { profile, type CaseStudy } from "@/content/profile";
+import Link from "next/link";
+import { Fragment } from "react";
+import { profile } from "@/content/profile";
 import { getProjects } from "@/lib/projects";
 import { AskBox } from "@/components/AskBox";
-import { ContactForm } from "@/components/ContactForm";
 import { GitHubActivity } from "@/components/GitHubActivity";
-import { GameClip } from "@/components/GameClip";
 import { Ledger } from "@/components/Ledger";
-import { CreeArchitecture, EventEaseFlow, Federation } from "@/components/Diagrams";
+import { SiteFooter, SiteHeader, ToolStrip } from "@/components/SiteChrome";
 
 export const revalidate = 3600;
 
-function Visual({ kind }: { kind: CaseStudy["visual"] }) {
-  if (kind === "galaga") return <GameClip />;
-  if (kind === "federation") return <Federation />;
-  if (kind === "eventease") return <EventEaseFlow />;
-  return <CreeArchitecture />;
-}
-
-function Study({ c }: { c: CaseStudy }) {
-  return (
-    <article className="study" aria-labelledby={`${c.slug}-h`}>
-      <header className="study-head">
-        <h3 id={`${c.slug}-h`}>{c.title}</h3>
-        <p className="study-context">
-          {c.context}, {c.period}
-        </p>
-      </header>
-
-      <div className="study-body">
-        <div className="study-visual">
-          <Visual kind={c.visual} />
-        </div>
-
-        <div className="study-intro">
-          <p className="study-evidence">
-            <mark>{c.evidence}</mark>
-          </p>
-          <p className="study-role">{c.role}</p>
-          <h4>The problem</h4>
-          <p>{c.problem}</p>
-          <p className="stack">{c.stack.join(" / ")}</p>
-          {(c.links.length > 0 || c.note) && (
-            <p className="project-links">
-              {c.links.map((l) => (
-                <a key={l.href} href={l.href}>
-                  {l.label}
-                </a>
-              ))}
-              {c.note && <span className="muted">{c.note}</span>}
-            </p>
-          )}
-        </div>
-
-        <div className="study-did">
-          <h4>What I did</h4>
-          <ul className="points">
-            {c.did.map((d) => (
-              <li key={d}>{d}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="study-side">
-          <div className="hard">
-            <h4>The hard part: {c.hardPart.title.charAt(0).toLowerCase() + c.hardPart.title.slice(1)}</h4>
-            <p>{c.hardPart.body}</p>
-          </div>
-          <h4>From my commit history</h4>
-          <ol className="commit-log">
-            {c.commits.map((m) => (
-              <li key={m.message}>
-                <time dateTime={m.date}>{m.date}</time>
-                <span className="commit-msg">{m.message}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-    </article>
+/** Wraps each highlight phrase in <mark>, keeping the rest of the text as is. */
+function highlight(text: string, phrases: string[]) {
+  const pattern = new RegExp(`(${phrases.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
+  return text.split(pattern).map((part, i) =>
+    phrases.includes(part) ? <mark key={i}>{part}</mark> : <Fragment key={i}>{part}</Fragment>,
   );
 }
 
@@ -85,77 +22,92 @@ export default async function Home() {
 
   return (
     <>
-      <header className="site-head wrap">
-        <a href="#main" className="wordmark">
-          Swayam Sagar
-        </a>
-        <nav aria-label="Sections">
-          <a href="#work">Work</a>
-          <a href="#experience">Experience</a>
-          <a href="#contact">Contact</a>
-          {profile.resume && (
-            <a href={profile.resume} className="nav-resume">
-              Résumé
-            </a>
-          )}
-        </nav>
-      </header>
+      <SiteHeader />
 
       <main id="main">
-        <section className="hero wrap" aria-labelledby="name">
-          <div className="hero-copy">
-            <p className="hero-role">{profile.role}</p>
-            <h1 id="name" className="hero-name">
-              {profile.name}
-            </h1>
-            <p className="hero-headline">{profile.headline}</p>
-            <p className="hero-seeking">
-              <span className="dot" aria-hidden="true" />
-              Looking for {profile.seeking.charAt(0).toLowerCase() + profile.seeking.slice(1)}
+        <section className="hero wrap" aria-labelledby="hero-h">
+          <p className="kicker">
+            <span className="dot" aria-hidden="true" />
+            {profile.name}, {profile.role}
+          </p>
+          <h1 id="hero-h" className="hero-title">
+            <span>From a blank repo</span> <span>to production.</span>
+          </h1>
+          <div className="hero-foot">
+            <p className="hero-intro">{profile.intro}</p>
+            <p className="hero-actions">
+              <a href={`mailto:${profile.email}`} className="btn btn-gold">
+                Email me
+              </a>
+              <a href="#work" className="btn btn-ghost">
+                See the work
+              </a>
             </p>
-            <p className="hero-links">
-              {profile.resume ? (
-                <a href={profile.resume} className="btn btn-cta">
-                  Download résumé
-                </a>
-              ) : (
-                <a href={`mailto:${profile.email}`} className="btn btn-cta">
-                  Email me
-                </a>
-              )}
-              <a href={profile.github}>GitHub</a>
-              <a href={profile.linkedin}>LinkedIn</a>
+          </div>
+        </section>
+
+        <ToolStrip tools={profile.tools} />
+
+        <section id="about" className="manifesto wrap" aria-labelledby="manifesto-h">
+          <h2 id="manifesto-h" className="kicker">
+            How I work
+          </h2>
+          <p className="manifesto-text">{highlight(profile.manifesto, profile.manifestoHighlights)}</p>
+        </section>
+
+        <section id="work" className="work wrap" aria-labelledby="work-h">
+          <div className="section-head">
+            <h2 id="work-h">Selected work</h2>
+            <p className="section-lede">
+              Each project starts with the problem, then what I built and what changed. Open one for the full story.
+            </p>
+          </div>
+          <ol className="work-index">
+            {profile.caseStudies.map((c, i) => (
+              <li key={c.slug}>
+                <Link href={`/work/${c.slug}`} className="work-row">
+                  <span className="work-num" aria-hidden="true">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="work-main">
+                    <span className="work-title">{c.title}</span>
+                    <span className="work-line">{c.oneLiner}</span>
+                  </span>
+                  <span className="work-meta">
+                    <span className="work-tags">{c.tags.join(", ")}</span>
+                    <span className="work-period">{c.period}</span>
+                  </span>
+                  <span className="work-go" aria-hidden="true">
+                    Read
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="record wrap" aria-labelledby="record-h">
+          <div className="section-head">
+            <h2 id="record-h">Contribution record</h2>
+            <p className="section-lede">
+              How much of each team project I wrote, counted from the repositories. Useful when every résumé says
+              &ldquo;team player&rdquo;.
             </p>
           </div>
           <Ledger rows={profile.ledger} />
         </section>
 
-        <section id="work" className="band wrap" aria-labelledby="work-h">
-          <h2 id="work-h">Selected work</h2>
-          <p className="section-lede">
-            Four projects, what I owned in each, and the hardest problem I hit. Commit messages are copied as written.
-          </p>
-          {profile.caseStudies.map((c) => (
-            <Study key={c.slug} c={c} />
-          ))}
-        </section>
-
         {projects.length > 0 && (
-          <section className="band wrap" aria-labelledby="more-h">
-            <h2 id="more-h">Hackathons and side projects</h2>
+          <section className="more wrap" aria-labelledby="more-h">
+            <div className="section-head">
+              <h2 id="more-h">Hackathons and side projects</h2>
+            </div>
             <div className="project-list">
               {projects.map((p) => (
                 <article key={p.slug} className="project">
-                  <h3>{p.title}</h3>
                   <p className="project-meta">{[p.context, p.period].filter(Boolean).join(", ")}</p>
+                  <h3>{p.title}</h3>
                   <p>{p.summary}</p>
-                  {p.details.length > 0 && (
-                    <ul className="points">
-                      {p.details.map((d) => (
-                        <li key={d}>{d}</li>
-                      ))}
-                    </ul>
-                  )}
                   <p className="stack">{p.stack.join(" / ")}</p>
                   {(p.repo || p.live) && (
                     <p className="project-links">
@@ -169,23 +121,38 @@ export default async function Home() {
           </section>
         )}
 
-        <section className="band wrap ask-band" aria-labelledby="ask-h">
+        {profile.testimonials.length > 0 && (
+          <section className="quotes wrap" aria-labelledby="quotes-h">
+            <div className="section-head">
+              <h2 id="quotes-h">What people I&apos;ve worked with say</h2>
+            </div>
+            <ul className="quote-list">
+              {profile.testimonials.map((t) => (
+                <li key={t.name}>
+                  <blockquote>
+                    <p>&ldquo;{t.quote}&rdquo;</p>
+                  </blockquote>
+                  <p className="quote-by">
+                    {t.name}, <span className="muted">{t.role}</span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section className="ask-band wrap" aria-labelledby="ask-h">
           <div>
-            <h2 id="ask-h">Ask about my work</h2>
-            <p className="section-lede">
-              Short on time? Ask a question and get an answer drawn only from what&apos;s on this page.
-            </p>
+            <h2 id="ask-h">Short on time?</h2>
+            <p className="section-lede">Ask a question and get an answer drawn only from what&apos;s on this site.</p>
           </div>
           <AskBox suggestions={profile.suggestedQuestions} name={profile.name} />
         </section>
 
-        <section className="band wrap" aria-labelledby="gh-h">
-          <h2 id="gh-h">What I&apos;m committing lately</h2>
-          <GitHubActivity profileUrl={profile.github} />
-        </section>
-
-        <section id="experience" className="band wrap" aria-labelledby="experience-h">
-          <h2 id="experience-h">Experience and education</h2>
+        <section className="about wrap" aria-labelledby="exp-h">
+          <div className="section-head">
+            <h2 id="exp-h">Experience and education</h2>
+          </div>
           <ol className="timeline">
             {profile.experience.map((r) => (
               <li key={r.title}>
@@ -211,7 +178,6 @@ export default async function Home() {
               </div>
             </li>
           </ol>
-
           <dl className="skills">
             {Object.entries(profile.skills).map(([group, items]) => (
               <div key={group}>
@@ -222,24 +188,15 @@ export default async function Home() {
           </dl>
         </section>
 
-        <section id="contact" className="band wrap contact" aria-labelledby="contact-h">
-          <div>
-            <h2 id="contact-h">Get in touch</h2>
-            <p>
-              Hiring for an internship, or want to talk about something here? Email{" "}
-              <a href={`mailto:${profile.email}`}>{profile.email}</a> or send a message.
-            </p>
-            <p className="muted">Based in {profile.location}. Open to roles anywhere in Canada.</p>
+        <section className="gh-band wrap" aria-labelledby="gh-h">
+          <div className="section-head">
+            <h2 id="gh-h">Lately on GitHub</h2>
           </div>
-          <ContactForm />
+          <GitHubActivity profileUrl={profile.github} />
         </section>
       </main>
 
-      <footer className="site-foot wrap">
-        <p className="muted">
-          {profile.name}, {new Date().getFullYear()}. Built with Next.js and PostgreSQL, deployed on Vercel.
-        </p>
-      </footer>
+      <SiteFooter />
     </>
   );
 }
