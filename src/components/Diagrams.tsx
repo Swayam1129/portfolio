@@ -39,6 +39,51 @@ export function CreeArchitecture() {
   );
 }
 
+export function EventEaseFlow() {
+  return (
+    <figure className="diagram" aria-labelledby="ee-diagram-cap">
+      <div className="dg-lanes">
+        <div className="dg-lane">
+          <p className="dg-lane-title">When something changes</p>
+          <div className="dg-col">
+            <div className="dg-box dg-quiet">A notification is written to Firestore</div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box dg-accent">
+              <strong>sendNotification</strong>
+              <span>Cloud Function, Firestore trigger</span>
+            </div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box">
+              <strong>Firebase Cloud Messaging</strong>
+              <span>batched sends, retries, dead tokens removed</span>
+            </div>
+          </div>
+        </div>
+        <div className="dg-lane">
+          <p className="dg-lane-title">On a schedule</p>
+          <div className="dg-col">
+            <div className="dg-box dg-accent">
+              <strong>Entrant lottery</strong>
+              <span>random draw, capped at open spots</span>
+            </div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box">
+              <strong>Invitations</strong>
+              <span>accept or decline before the deadline</span>
+            </div>
+            <div className="dg-arrow" aria-hidden="true" />
+            <div className="dg-box">
+              <strong>Sorry notices</strong>
+              <span>to everyone not chosen</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption id="ee-diagram-cap">The Cloud Functions I wrote keep entrants informed without anyone refreshing</figcaption>
+    </figure>
+  );
+}
+
 export function Federation() {
   return (
     <figure className="diagram" aria-labelledby="fed-diagram-cap">

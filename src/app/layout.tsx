@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/bricolage-grotesque";
-import "@fontsource-variable/instrument-sans";
+import "@fontsource-variable/archivo/wdth.css";
+import "@fontsource-variable/atkinson-hyperlegible-next";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import { profile } from "@/content/profile";
@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F1F4F6" },
-    { media: "(prefers-color-scheme: dark)", color: "#101B25" },
+    { media: "(prefers-color-scheme: light)", color: "#FAFAF7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F1A14" },
   ],
 };
 

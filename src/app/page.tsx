@@ -4,13 +4,15 @@ import { AskBox } from "@/components/AskBox";
 import { ContactForm } from "@/components/ContactForm";
 import { GitHubActivity } from "@/components/GitHubActivity";
 import { GameClip } from "@/components/GameClip";
-import { CreeArchitecture, Federation } from "@/components/Diagrams";
+import { Ledger } from "@/components/Ledger";
+import { CreeArchitecture, EventEaseFlow, Federation } from "@/components/Diagrams";
 
 export const revalidate = 3600;
 
 function Visual({ kind }: { kind: CaseStudy["visual"] }) {
   if (kind === "galaga") return <GameClip />;
   if (kind === "federation") return <Federation />;
+  if (kind === "eventease") return <EventEaseFlow />;
   return <CreeArchitecture />;
 }
 
@@ -20,9 +22,8 @@ function Study({ c }: { c: CaseStudy }) {
       <header className="study-head">
         <h3 id={`${c.slug}-h`}>{c.title}</h3>
         <p className="study-context">
-          {c.context}. {c.period}.
+          {c.context}, {c.period}
         </p>
-        <p className="study-role">{c.role}</p>
       </header>
 
       <div className="study-body">
@@ -31,10 +32,13 @@ function Study({ c }: { c: CaseStudy }) {
         </div>
 
         <div className="study-intro">
-          <p className="study-evidence">{c.evidence}</p>
+          <p className="study-evidence">
+            <mark>{c.evidence}</mark>
+          </p>
+          <p className="study-role">{c.role}</p>
           <h4>The problem</h4>
           <p>{c.problem}</p>
-          <p className="stack">{c.stack.join(", ")}</p>
+          <p className="stack">{c.stack.join(" / ")}</p>
           {(c.links.length > 0 || c.note) && (
             <p className="project-links">
               {c.links.map((l) => (
@@ -81,10 +85,9 @@ export default async function Home() {
 
   return (
     <>
-      <div className="top-band">
       <header className="site-head wrap">
-        <a href="#main" className="mark" aria-label={`${profile.name}, back to top`}>
-          SS
+        <a href="#main" className="wordmark">
+          Swayam Sagar
         </a>
         <nav aria-label="Sections">
           <a href="#work">Work</a>
@@ -97,41 +100,40 @@ export default async function Home() {
           )}
         </nav>
       </header>
-      </div>
 
       <main id="main">
-        <section className="top-band" aria-labelledby="name">
-          <div className="hero wrap">
+        <section className="hero wrap" aria-labelledby="name">
           <div className="hero-copy">
+            <p className="hero-role">{profile.role}</p>
             <h1 id="name" className="hero-name">
               {profile.name}
             </h1>
-            <p className="hero-role">{profile.role}</p>
             <p className="hero-headline">{profile.headline}</p>
             <p className="hero-seeking">
               <span className="dot" aria-hidden="true" />
               Looking for {profile.seeking.charAt(0).toLowerCase() + profile.seeking.slice(1)}
             </p>
             <p className="hero-links">
-              {profile.resume && (
+              {profile.resume ? (
                 <a href={profile.resume} className="btn btn-cta">
                   Download résumé
                 </a>
+              ) : (
+                <a href={`mailto:${profile.email}`} className="btn btn-cta">
+                  Email me
+                </a>
               )}
-              <a href={`mailto:${profile.email}`}>{profile.email}</a>
               <a href={profile.github}>GitHub</a>
               <a href={profile.linkedin}>LinkedIn</a>
             </p>
           </div>
-          <AskBox suggestions={profile.suggestedQuestions} name={profile.name} />
-          </div>
+          <Ledger rows={profile.ledger} />
         </section>
 
         <section id="work" className="band wrap" aria-labelledby="work-h">
           <h2 id="work-h">Selected work</h2>
           <p className="section-lede">
-            Three projects, with what went wrong and how I fixed it. The commit messages are copied from the
-            repositories.
+            Four projects, what I owned in each, and the hardest problem I hit. Commit messages are copied as written.
           </p>
           {profile.caseStudies.map((c) => (
             <Study key={c.slug} c={c} />
@@ -140,12 +142,12 @@ export default async function Home() {
 
         {projects.length > 0 && (
           <section className="band wrap" aria-labelledby="more-h">
-            <h2 id="more-h">Other projects</h2>
+            <h2 id="more-h">Hackathons and side projects</h2>
             <div className="project-list">
               {projects.map((p) => (
                 <article key={p.slug} className="project">
                   <h3>{p.title}</h3>
-                  <p className="muted project-meta">{[p.context, p.period].filter(Boolean).join(", ")}</p>
+                  <p className="project-meta">{[p.context, p.period].filter(Boolean).join(", ")}</p>
                   <p>{p.summary}</p>
                   {p.details.length > 0 && (
                     <ul className="points">
@@ -154,7 +156,7 @@ export default async function Home() {
                       ))}
                     </ul>
                   )}
-                  <p className="stack">{p.stack.join(", ")}</p>
+                  <p className="stack">{p.stack.join(" / ")}</p>
                   {(p.repo || p.live) && (
                     <p className="project-links">
                       {p.live && <a href={p.live}>Open it</a>}
@@ -166,6 +168,16 @@ export default async function Home() {
             </div>
           </section>
         )}
+
+        <section className="band wrap ask-band" aria-labelledby="ask-h">
+          <div>
+            <h2 id="ask-h">Ask about my work</h2>
+            <p className="section-lede">
+              Short on time? Ask a question and get an answer drawn only from what&apos;s on this page.
+            </p>
+          </div>
+          <AskBox suggestions={profile.suggestedQuestions} name={profile.name} />
+        </section>
 
         <section className="band wrap" aria-labelledby="gh-h">
           <h2 id="gh-h">What I&apos;m committing lately</h2>
