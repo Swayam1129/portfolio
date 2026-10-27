@@ -28,35 +28,12 @@ function Study({ c }: { c: CaseStudy }) {
       <div className="study-body">
         <div className="study-visual">
           <Visual kind={c.visual} />
-          <p className="study-evidence">{c.evidence}</p>
         </div>
 
-        <div className="study-text">
+        <div className="study-intro">
+          <p className="study-evidence">{c.evidence}</p>
           <h4>The problem</h4>
           <p>{c.problem}</p>
-
-          <h4>What I did</h4>
-          <ul className="points">
-            {c.did.map((d) => (
-              <li key={d}>{d}</li>
-            ))}
-          </ul>
-
-          <div className="hard">
-            <h4>The hard part: {c.hardPart.title.charAt(0).toLowerCase() + c.hardPart.title.slice(1)}</h4>
-            <p>{c.hardPart.body}</p>
-          </div>
-
-          <h4>From my commit history</h4>
-          <ol className="commit-log">
-            {c.commits.map((m) => (
-              <li key={m.message}>
-                <time dateTime={m.date}>{m.date}</time>
-                <span className="commit-msg">{m.message}</span>
-              </li>
-            ))}
-          </ol>
-
           <p className="stack">{c.stack.join(", ")}</p>
           {(c.links.length > 0 || c.note) && (
             <p className="project-links">
@@ -69,6 +46,31 @@ function Study({ c }: { c: CaseStudy }) {
             </p>
           )}
         </div>
+
+        <div className="study-did">
+          <h4>What I did</h4>
+          <ul className="points">
+            {c.did.map((d) => (
+              <li key={d}>{d}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="study-side">
+          <div className="hard">
+            <h4>The hard part: {c.hardPart.title.charAt(0).toLowerCase() + c.hardPart.title.slice(1)}</h4>
+            <p>{c.hardPart.body}</p>
+          </div>
+          <h4>From my commit history</h4>
+          <ol className="commit-log">
+            {c.commits.map((m) => (
+              <li key={m.message}>
+                <time dateTime={m.date}>{m.date}</time>
+                <span className="commit-msg">{m.message}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </article>
   );
@@ -79,6 +81,7 @@ export default async function Home() {
 
   return (
     <>
+      <div className="top-band">
       <header className="site-head wrap">
         <a href="#main" className="mark" aria-label={`${profile.name}, back to top`}>
           SS
@@ -94,9 +97,11 @@ export default async function Home() {
           )}
         </nav>
       </header>
+      </div>
 
       <main id="main">
-        <section className="hero wrap" aria-labelledby="name">
+        <section className="top-band" aria-labelledby="name">
+          <div className="hero wrap">
           <div className="hero-copy">
             <h1 id="name" className="hero-name">
               {profile.name}
@@ -109,7 +114,7 @@ export default async function Home() {
             </p>
             <p className="hero-links">
               {profile.resume && (
-                <a href={profile.resume} className="btn">
+                <a href={profile.resume} className="btn btn-cta">
                   Download résumé
                 </a>
               )}
@@ -119,6 +124,7 @@ export default async function Home() {
             </p>
           </div>
           <AskBox suggestions={profile.suggestedQuestions} name={profile.name} />
+          </div>
         </section>
 
         <section id="work" className="band wrap" aria-labelledby="work-h">
