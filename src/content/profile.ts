@@ -87,7 +87,7 @@ export const profile = {
   github: "https://github.com/Swayam1129",
   githubUser: "Swayam1129",
   linkedin: "https://www.linkedin.com/in/swayam-sagar-948323256",
-  resume: "", // put resume.pdf in /public, then set this to "/resume.pdf"
+  resume: "/Swayam_Sagar_Resume.pdf",
 
   tools: ["Docker", "GitHub Actions", "PostgreSQL", "SvelteKit", "TypeScript", "Firebase", "Java", "Android", "Kotlin", "Django", "Python", "C++", "PyTorch", "Caddy", "Playwright", "Heroku"],
 
