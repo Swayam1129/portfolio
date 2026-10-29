@@ -416,6 +416,16 @@ export const profile = {
   // Smaller projects. Editable in /admin once the database is seeded.
   projects: [
     {
+      slug: "bdd100k-detector",
+      title: "Object detection for driving scenes",
+      summary:
+        "An anchor-free object detector for cars, pedestrians and bicycles on the BDD100K driving dataset: a ResNet-18 backbone with an FPN neck and FCOS-style heads trained with focal and GIoU loss. After 15 epochs it reached 22.6% box AP and 46.8% AP50 on the 10,000-image validation set, ahead of a pretrained YOLO26n (18.5% / 35.8%). Night scenes were the weakest, so I retrained with lighting and contrast augmentation as the only change: night AP rose from 20.4% to 20.8%, mostly from fewer false positives, with no drop during the day.",
+      details: [],
+      stack: ["Python", "PyTorch", "ResNet-18", "BDD100K"],
+      period: "Oct 2026",
+      context: "Computer vision course",
+    },
+    {
       slug: "migraineminder",
       title: "MigraineMinder",
       summary:
